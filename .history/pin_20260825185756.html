@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIN Entry</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f5f7fc 0%, #e9edf5 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+        }
+
+        .container {
+            max-width: 460px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 48px;
+            padding: 2rem 1.8rem 2.2rem;
+            box-shadow: 0 25px 50px -8px rgba(0, 20, 40, 0.25), 0 8px 20px rgba(0,0,0,0.06);
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.8rem;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-left i {
+            font-size: 1.1rem;
+            color: #1e293b;
+            background: rgba(255,255,255,0.6);
+            padding: 6px 10px;
+            border-radius: 30px;
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+
+        .header-left span {
+            font-weight: 600;
+            font-size: 0.95rem;
+            letter-spacing: 0.3px;
+            color: #0b1e33;
+        }
+
+        .time {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #1e3a5f;
+            background: rgba(255,255,255,0.5);
+            padding: 4px 14px;
+            border-radius: 40px;
+            border: 1px solid rgba(255,255,255,0.7);
+        }
+
+        .welcome {
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: #0b1e33;
+            margin-bottom: 0.15rem;
+            letter-spacing: -0.3px;
+        }
+
+        .pin-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin: 0.2rem 0 0.6rem 0;
+        }
+
+        .pin-label span {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #3a5270;
+            letter-spacing: 0.2px;
+        }
+
+        .pin-label .forgot-link {
+            font-size: 0.8rem;
+            color: #2b6c8f;
+            font-weight: 500;
+            cursor: pointer;
+            opacity: 0.8;
+            border-bottom: 1px dashed rgba(43, 108, 143, 0.3);
+        }
+
+        .pin-dots {
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+            margin: 1.2rem 0 1.8rem 0;
+        }
+
+        .dot {
+            width: 18px;
+            height: 18px;
+            background: #d9e0eb;
+            border-radius: 50%;
+            transition: 0.2s;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .dot.filled {
+            background: #0b2b44;
+            box-shadow: 0 2px 6px rgba(11, 43, 68, 0.2);
+        }
+
+        .numpad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 1.2rem 0 1.8rem 0;
+        }
+
+        .key {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.6);
+            border-radius: 60px;
+            padding: 0.9rem 0;
+            font-size: 1.7rem;
+            font-weight: 500;
+            color: #0b1e33;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.08s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.02);
+            user-select: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .key:active {
+            background: rgba(200, 215, 235, 0.7);
+            transform: scale(0.94);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .key i {
+            font-size: 1.4rem;
+            color: #2d4b6e;
+        }
+
+        .key.empty {
+            background: transparent;
+            box-shadow: none;
+            border: none;
+            backdrop-filter: none;
+            pointer-events: none;
+        }
+
+        .key.backspace {
+            background: rgba(235, 240, 250, 0.6);
+        }
+
+        .key.backspace i {
+            font-size: 1.5rem;
+        }
+
+        .bottom-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.8rem;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .sign-out {
+            background: transparent;
+            border: 1px solid rgba(60, 80, 110, 0.15);
+            padding: 0.5rem 1.4rem;
+            border-radius: 60px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: #1d3853;
+            cursor: pointer;
+            transition: 0.15s;
+            background: rgba(255,255,255,0.3);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sign-out i {
+            font-size: 0.9rem;
+        }
+
+        .sign-out:active {
+            background: rgba(200, 215, 235, 0.6);
+            transform: scale(0.96);
+        }
+
+        .admin-link {
+            background: #1d3853;
+            color: white;
+            border: none;
+            padding: 0.5rem 1.4rem;
+            border-radius: 60px;
+            font-weight: 500;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 10px rgba(20, 50, 80, 0.15);
+            text-decoration: none;
+        }
+
+        .admin-link i {
+            font-size: 0.9rem;
+        }
+
+        .admin-link:active {
+            transform: scale(0.95);
+            background: #122b40;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0b1e33;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 60px;
+            font-size: 0.9rem;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .user-id-display {
+            font-size: 0.8rem;
+            color: #4a6a8a;
+            margin-top: -0.2rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+            opacity: 0.7;
+        }
+
+        @media (max-width: 480px) {
+            .container { padding: 1.5rem 1.2rem; }
+            .welcome { font-size: 1.4rem; }
+            .key { font-size: 1.5rem; padding: 0.7rem 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <i class="fas fa-lock"></i>
+                <span>PIN·secure</span>
+            </div>
+            <div class="time" id="liveTime">11:22</div>
+        </div>
+
+        <div class="welcome">Welcome Back</div>
+        <div class="user-id-display" id="userIdDisplay">User: —</div>
+        <div class="pin-label">
+            <span>Enter PIN to continue</span>
+            <span class="forgot-link" id="resetPinBtn"><i class="far fa-question-circle"></i> reset PIN</span>
+        </div>
+
+        <div class="pin-dots" id="pinDots">
+            <span class="dot" data-index="0"></span>
+            <span class="dot" data-index="1"></span>
+            <span class="dot" data-index="2"></span>
+            <span class="dot" data-index="3"></span>
+        </div>
+
+        <div class="numpad" id="numpad">
+            <div class="key" data-value="1">1</div>
+            <div class="key" data-value="2">2</div>
+            <div class="key" data-value="3">3</div>
+            <div class="key" data-value="4">4</div>
+            <div class="key" data-value="5">5</div>
+            <div class="key" data-value="6">6</div>
+            <div class="key" data-value="7">7</div>
+            <div class="key" data-value="8">8</div>
+            <div class="key" data-value="9">9</div>
+            <div class="key empty"></div>
+            <div class="key zero" data-value="0">0</div>
+            <div class="key backspace" id="backspaceKey"><i class="fas fa-delete-left"></i></div>
+        </div>
+
+        <div class="bottom-row">
+            <button class="sign-out" id="signOutBtn"><i class="fas fa-sign-out-alt"></i> Sign out</button>
+            <a href="kpornyo.html" class="admin-link" target="_blank"><i class="fas fa-user-shield"></i> Admin</a>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        (function() {
+            "use strict";
+
+            // ---------- DATA STORE (localStorage) ----------
+            const STORAGE_KEY = 'pinAppUsers';
+            const SESSION_KEY = 'pinAppCurrentUserId';
+
+            function getUsers() {
+                try {
+                    const data = localStorage.getItem(STORAGE_KEY);
+                    if (data) {
+                        const parsed = JSON.parse(data);
+                        if (Array.isArray(parsed)) return parsed;
+                    }
+                } catch (e) {}
+                return null;
+            }
+
+            function saveUsers(users) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+            }
+
+            function getCurrentUserId() {
+                return localStorage.getItem(SESSION_KEY) || null;
+            }
+
+            function setCurrentUserId(id) {
+                localStorage.setItem(SESSION_KEY, id);
+            }
+
+            // ---------- STATE ----------
+            let users = getUsers();
+            if (!users || users.length === 0) {
+                users = [
+                    { id: 'u1', pin: '1234' },
+                    { id: 'u2', pin: '9876' },
+                ];
+                saveUsers(users);
+            }
+
+            let currentUserId = getCurrentUserId();
+            if (!currentUserId || !users.some(u => u.id === currentUserId)) {
+                currentUserId = users[0].id;
+                setCurrentUserId(currentUserId);
+            }
+
+            let enteredPin = '';
+
+            // DOM elements
+            const pinDots = document.querySelectorAll('.dot');
+            const numpadKeys = document.querySelectorAll('.key:not(.empty)');
+            const backspaceKey = document.getElementById('backspaceKey');
+            const signOutBtn = document.getElementById('signOutBtn');
+            const resetPinBtn = document.getElementById('resetPinBtn');
+            const liveTimeEl = document.getElementById('liveTime');
+            const toastEl = document.getElementById('toast');
+            const userIdDisplay = document.getElementById('userIdDisplay');
+
+            // ---------- HELPERS ----------
+            function getCurrentUser() {
+                return users.find(u => u.id === currentUserId) || users[0];
+            }
+
+            function updateDots() {
+                const len = enteredPin.length;
+                pinDots.forEach((dot, idx) => {
+                    if (idx < len) dot.classList.add('filled');
+                    else dot.classList.remove('filled');
+                });
+            }
+
+            function showToast(msg, duration = 2000) {
+                toastEl.textContent = msg;
+                toastEl.classList.add('show');
+                clearTimeout(toastEl._timeout);
+                toastEl._timeout = setTimeout(() => {
+                    toastEl.classList.remove('show');
+                }, duration);
+            }
+
+            function refreshUI() {
+                const user = getCurrentUser();
+                userIdDisplay.textContent = `User: ${user.id.slice(-4)}`;
+                // If user has no PIN, show hint
+                if (!user.pin) {
+                    showToast('🆕 New user! Set your 4-digit PIN.', 2500);
+                }
+                updateDots();
+            }
+
+            // ---------- CORE LOGIC ----------
+            function handlePinEntry() {
+                const user = getCurrentUser();
+                if (!user) return;
+
+                if (user.pin && user.pin.length === 4) {
+                    // Existing user - validate
+                    if (enteredPin === user.pin) {
+                        showToast(`✅ Welcome back! PIN correct.`);
+                        enteredPin = '';
+                        updateDots();
+                    } else {
+                        if (enteredPin.length === 4) {
+                            showToast('❌ Wrong PIN. Please try again.');
+                            enteredPin = '';
+                            updateDots();
+                        }
+                    }
+                } else {
+                    // New user or no PIN set - store it
+                    if (enteredPin.length === 4) {
+                        user.pin = enteredPin;
+                        saveUsers(users);
+                        showToast(`✅ PIN set successfully! Welcome.`);
+                        enteredPin = '';
+                        updateDots();
+                        refreshUI();
+                    }
+                }
+            }
+
+            // ---------- EVENT HANDLERS ----------
+            function handleKeyPress(value) {
+                if (enteredPin.length >= 4) return;
+                enteredPin += value;
+                updateDots();
+                if (enteredPin.length === 4) {
+                    handlePinEntry();
+                }
+            }
+
+            function handleBackspace() {
+                if (enteredPin.length > 0) {
+                    enteredPin = enteredPin.slice(0, -1);
+                    updateDots();
+                }
+            }
+
+            function handleSignOut() {
+                // Switch to another user
+                const otherUser = users.find(u => u.id !== currentUserId);
+                if (otherUser) {
+                    currentUserId = otherUser.id;
+                } else {
+                    // Create new user if only one exists
+                    const newId = 'u' + Date.now().toString(36);
+                    users.push({ id: newId, pin: '' });
+                    currentUserId = newId;
+                    saveUsers(users);
+                }
+                setCurrentUserId(currentUserId);
+                enteredPin = '';
+                refreshUI();
+                showToast('🔒 Switched to another user.');
+            }
+
+            function handleResetPin() {
+                const user = getCurrentUser();
+                if (!user) return;
+                if (user.pin) {
+                    if (confirm(`Reset PIN for user ${user.id.slice(-4)}?`)) {
+                        user.pin = '';
+                        saveUsers(users);
+                        enteredPin = '';
+                        refreshUI();
+                        showToast('🔄 PIN reset. Set a new PIN.');
+                    }
+                } else {
+                    showToast('ℹ️ This user has no PIN set yet.');
+                }
+            }
+
+            // ---------- INIT ----------
+            function init() {
+                refreshUI();
+
+                numpadKeys.forEach(key => {
+                    key.addEventListener('click', (e) => {
+                        const val = key.dataset.value;
+                        if (val !== undefined) {
+                            handleKeyPress(val);
+                        }
+                    });
+                });
+
+                backspaceKey.addEventListener('click', handleBackspace);
+                signOutBtn.addEventListener('click', handleSignOut);
+                resetPinBtn.addEventListener('click', handleResetPin);
+
+                function updateTime() {
+                    const now = new Date();
+                    const h = String(now.getHours()).padStart(2, '0');
+                    const m = String(now.getMinutes()).padStart(2, '0');
+                    liveTimeEl.textContent = `${h}:${m}`;
+                }
+                updateTime();
+                setInterval(updateTime, 30000);
+
+                document.addEventListener('keydown', (e) => {
+                    if (e.key >= '0' && e.key <= '9') {
+                        handleKeyPress(e.key);
+                    } else if (e.key === 'Backspace') {
+                        handleBackspace();
+                        e.preventDefault();
+                    } else if (e.key === 'Enter') {
+                        if (enteredPin.length === 4) handlePinEntry();
+                    }
+                });
+            }
+
+            init();
+        })();
+    </script>
+</body>
+</html>

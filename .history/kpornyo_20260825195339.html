@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: #f5f5f7;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .admin-container {
+            max-width: 850px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 40px;
+            padding: 2.5rem 2.2rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .admin-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1c1c1e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-header h1 i {
+            font-size: 1.2rem;
+            color: #007aff;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .header-actions a,
+        .header-actions button {
+            background: #f0f0f0;
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 60px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: #1c1c1e;
+            cursor: pointer;
+            transition: 0.15s;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .header-actions a:hover,
+        .header-actions button:hover {
+            background: #d1d1d6;
+        }
+
+        .header-actions a:active,
+        .header-actions button:active {
+            transform: scale(0.96);
+        }
+
+        .stats {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 1.8rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: #f8f8fa;
+            padding: 0.7rem 1.5rem;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stat-box span {
+            font-weight: 500;
+            color: #1c1c1e;
+            font-size: 0.9rem;
+        }
+
+        .stat-box .count {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #1c1c1e;
+        }
+
+        .user-list {
+            background: #f8f8fa;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .user-list-header {
+            display: grid;
+            grid-template-columns: 1.2fr 1.5fr 1fr 1fr 1.2fr auto;
+            padding: 0.7rem 1.2rem;
+            background: rgba(0,0,0,0.02);
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+            font-weight: 600;
+            font-size: 0.7rem;
+            color: #6c6c70;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            position: sticky;
+            top: 0;
+            background: #f8f8fa;
+            z-index: 1;
+        }
+
+        .user-item {
+            display: grid;
+            grid-template-columns: 1.2fr 1.5fr 1fr 1fr 1.2fr auto;
+            padding: 0.7rem 1.2rem;
+            border-bottom: 1px solid rgba(0,0,0,0.03);
+            align-items: center;
+        }
+
+        .user-item:last-child {
+            border-bottom: none;
+        }
+
+        .user-id {
+            font-weight: 500;
+            color: #1c1c1e;
+            font-size: 0.75rem;
+            font-family: 'SF Mono', 'Courier New', monospace;
+        }
+
+        .user-email {
+            font-size: 0.8rem;
+            color: #1c1c1e;
+            word-break: break-all;
+        }
+
+        .user-password {
+            font-family: 'SF Mono', 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: #1c1c1e;
+            letter-spacing: 1px;
+            background: #ffffff;
+            padding: 0.15rem 0.6rem;
+            border-radius: 40px;
+            display: inline-block;
+            width: fit-content;
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+
+        .user-pin {
+            font-family: 'SF Mono', 'Courier New', monospace;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #1c1c1e;
+            letter-spacing: 2px;
+            background: #ffffff;
+            padding: 0.15rem 0.6rem;
+            border-radius: 40px;
+            display: inline-block;
+            width: fit-content;
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+
+        .user-pin.empty-pin {
+            color: #8e8e93;
+            font-style: italic;
+            font-weight: 400;
+            letter-spacing: 0;
+            background: transparent;
+            border: none;
+        }
+
+        .user-time {
+            font-size: 0.7rem;
+            color: #8e8e93;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .user-actions button {
+            background: transparent;
+            border: none;
+            padding: 3px 10px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #1c1c1e;
+            cursor: pointer;
+            transition: 0.1s;
+            background: #ffffff;
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+
+        .user-actions button:hover {
+            background: #e5e5ea;
+        }
+
+        .user-actions button.danger {
+            color: #ff3b30;
+        }
+
+        .user-actions button.danger:hover {
+            background: rgba(255, 59, 48, 0.1);
+        }
+
+        .empty-state {
+            padding: 2.5rem;
+            text-align: center;
+            color: #8e8e93;
+            font-size: 0.9rem;
+        }
+
+        .empty-state i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.3;
+            display: block;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .admin-actions button {
+            background: #f0f0f0;
+            border: none;
+            padding: 0.5rem 1.4rem;
+            border-radius: 60px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: #1c1c1e;
+            cursor: pointer;
+            transition: 0.1s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .admin-actions button:active {
+            transform: scale(0.96);
+        }
+
+        .admin-actions button.primary {
+            background: #007aff;
+            color: white;
+        }
+
+        .admin-actions button.primary:hover {
+            background: #0055b3;
+        }
+
+        .admin-actions button.danger {
+            color: #ff3b30;
+        }
+
+        .admin-actions button.danger:hover {
+            background: rgba(255, 59, 48, 0.1);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(28, 28, 30, 0.9);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 12px 28px;
+            border-radius: 60px;
+            font-size: 0.9rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        @media (max-width: 640px) {
+            .admin-container { padding: 1.5rem; }
+            .user-list-header, .user-item {
+                grid-template-columns: 1fr;
+                gap: 4px;
+                padding: 0.6rem 1rem;
+            }
+            .user-list-header { display: none; }
+            .user-actions { margin-top: 4px; }
+            .user-time { font-size: 0.7rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1><i class="fas fa-users-cog"></i> Admin Dashboard</h1>
+            <div class="header-actions">
+                <a href="login.html"><i class="fas fa-arrow-left"></i> Back</a>
+                <button id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-box">
+                <span><i class="fas fa-users"></i> Total Users: <span class="count" id="totalUsers">0</span></span>
+            </div>
+            <div class="stat-box">
+                <span><i class="fas fa-key"></i> With PIN: <span class="count" id="totalPins">0</span></span>
+            </div>
+        </div>
+
+        <div class="user-list">
+            <div class="user-list-header">
+                <span>ID</span>
+                <span>Email</span>
+                <span>Password</span>
+                <span>PIN</span>
+                <span>Created</span>
+                <span>Actions</span>
+            </div>
+            <div id="userListBody">
+                <div class="empty-state">
+                    <i class="fas fa-user-plus"></i>
+                    <div>No users yet</div>
+                    <div style="font-size: 0.8rem; margin-top: 4px; opacity: 0.7;">Users will appear here after they sign up</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-actions">
+            <button class="danger" id="clearAllBtn"><i class="fas fa-trash-alt"></i> Clear All</button>
+        </div>
+        <div style="margin-top: 0.8rem; font-size: 0.7rem; color: #8e8e93;">
+            <i class="fas fa-database"></i> Data stored in localStorage
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        (function() {
+            "use strict";
+
+            const STORAGE_KEY = 'pinAppUsers';
+
+            function getUsers() {
+                try {
+                    const data = localStorage.getItem(STORAGE_KEY);
+                    if (data) {
+                        const parsed = JSON.parse(data);
+                        if (Array.isArray(parsed)) return parsed;
+                    }
+                } catch (e) {}
+                return [];
+            }
+
+            function saveUsers(users) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+            }
+
+            const userListBody = document.getElementById('userListBody');
+            const totalUsersEl = document.getElementById('totalUsers');
+            const totalPinsEl = document.getElementById('totalPins');
+            const clearAllBtn = document.getElementById('clearAllBtn');
+            const refreshBtn = document.getElementById('refreshBtn');
+            const toastEl = document.getElementById('toast');
+
+            function showToast(msg) {
+                toastEl.textContent = msg;
+                toastEl.classList.add('show');
+                clearTimeout(toastEl._timeout);
+                toastEl._timeout = setTimeout(() => {
+                    toastEl.classList.remove('show');
+                }, 2000);
+            }
+
+            function renderUsers() {
+                const users = getUsers();
+
+                totalUsersEl.textContent = users.length;
+                totalPinsEl.textContent = users.filter(u => u.pin && u.pin.length === 4).length;
+
+                if (users.length === 0) {
+                    userListBody.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-user-plus"></i>
+                            <div>No users yet</div>
+                            <div style="font-size: 0.8rem; margin-top: 4px; opacity: 0.7;">Users will appear here after they sign up</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                const reversedUsers = [...users].reverse();
+                reversedUsers.forEach((u) => {
+                    const hasPin = u.pin && u.pin.length === 4;
+                    const hasPassword = u.password && u.password.length > 0;
+                    html += `
+                        <div class="user-item">
+                            <span class="user-id">${u.id}</span>
+                            <span class="user-email">${u.email || 'No email'}</span>
+                            <span class="user-password">${hasPassword ? '••••••' : '—'}</span>
+                            <span class="user-pin ${hasPin ? '' : 'empty-pin'}">
+                                ${hasPin ? u.pin : '— no PIN —'}
+                            </span>
+                            <span class="user-time">${u.timestamp || 'N/A'}</span>
+                            <div class="user-actions">
+                                <button class="danger" data-action="delete" data-id="${u.id}"><i class="fas fa-trash-alt"></i></button>
+                            </div>
+                        </div>
+                    `;
+                });
+                userListBody.innerHTML = html;
+
+                document.querySelectorAll('[data-action="delete"]').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        const id = this.dataset.id;
+                        if (confirm(`Delete user ${id}?`)) {
+                            let users = getUsers();
+                            users = users.filter(u => u.id !== id);
+                            saveUsers(users);
+                            renderUsers();
+                            showToast(`Deleted ${id}`);
+                        }
+                    });
+                });
+            }
+
+            function clearAll() {
+                if (confirm('Delete ALL users? This cannot be undone.')) {
+                    saveUsers([]);
+                    renderUsers();
+                    showToast('All users cleared');
+                }
+            }
+
+            function init() {
+                renderUsers();
+                clearAllBtn.addEventListener('click', clearAll);
+                refreshBtn.addEventListener('click', () => {
+                    renderUsers();
+                    showToast('Refreshed');
+                });
+                setInterval(renderUsers, 3000);
+            }
+
+            init();
+        })();
+    </script>
+</body>
+</html>
