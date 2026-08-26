@@ -343,95 +343,6 @@
             margin-left: 8px;
         }
 
-        .admin-login-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(10px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .admin-login-box {
-            background: #ffffff;
-            border-radius: 30px;
-            padding: 2.5rem;
-            max-width: 400px;
-            width: 90%;
-            text-align: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-
-        .admin-login-box h2 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #1c1c1e;
-            margin-bottom: 0.5rem;
-        }
-
-        .admin-login-box p {
-            color: #8e8e93;
-            font-size: 0.9rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .admin-login-box .input-group {
-            position: relative;
-            width: 100%;
-            margin-bottom: 14px;
-        }
-
-        .admin-login-box .input-group input {
-            width: 100%;
-            padding: 14px 16px;
-            background: #f5f5f5;
-            border: none;
-            border-radius: 10px;
-            font-size: 15px;
-            color: #14213d;
-            font-family: inherit;
-            outline: none;
-        }
-
-        .admin-login-box .input-group input:focus {
-            box-shadow: 0 0 0 2px rgba(28, 54, 97, 0.2);
-        }
-
-        .admin-login-box .login-btn {
-            width: 100%;
-            padding: 14px;
-            background: #1c3661;
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: opacity 0.2s;
-            margin-top: 8px;
-        }
-
-        .admin-login-box .login-btn:hover { opacity: 0.9; }
-        .admin-login-box .login-btn:active { opacity: 0.7; }
-
-        .admin-login-box .error-msg {
-            color: #ff3b30;
-            font-size: 0.85rem;
-            margin-top: 10px;
-            display: none;
-        }
-
-        .admin-login-box .lock-icon {
-            font-size: 3rem;
-            color: #1c3661;
-            margin-bottom: 0.5rem;
-        }
-
         @media (max-width: 640px) {
             .admin-container { padding: 1.5rem; }
             .user-list-header, .user-item {
@@ -446,26 +357,7 @@
     </style>
 </head>
 <body>
-
-    <div class="admin-login-overlay" id="adminLoginOverlay">
-        <div class="admin-login-box">
-            <div class="lock-icon"><i class="fas fa-lock"></i></div>
-            <h2>Admin Access</h2>
-            <p>Enter your credentials to access the dashboard</p>
-            <form id="admin-login-form" onsubmit="handleAdminLogin(event)">
-                <div class="input-group">
-                    <input type="email" placeholder="Admin Email" id="admin-email" required>
-                </div>
-                <div class="input-group">
-                    <input type="password" placeholder="Password" id="admin-password" required>
-                </div>
-                <button type="submit" class="login-btn">Unlock Dashboard</button>
-                <div class="error-msg" id="adminError">Invalid credentials. Please try again.</div>
-            </form>
-        </div>
-    </div>
-
-    <div class="admin-container" id="adminContent" style="display: none;">
+    <div class="admin-container">
         <div class="admin-header">
             <h1>
                 <i class="fas fa-users-cog"></i> 
@@ -475,7 +367,6 @@
             <div class="header-actions">
                 <a href="login.html"><i class="fas fa-arrow-left"></i> Back</a>
                 <button id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
-                <button id="logoutAdminBtn" style="color: #ff3b30;"><i class="fas fa-sign-out-alt"></i> Logout</button>
             </div>
         </div>
 
@@ -518,6 +409,7 @@
 
     <div id="toast" class="toast"></div>
 
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
@@ -525,6 +417,7 @@
         (function() {
             "use strict";
 
+            // 🔥 YOUR FIREBASE CONFIG
             const firebaseConfig = {
                 apiKey: "AIzaSyBx6AU-Jvg1So-Ty3FFKryctXZGV-LNFCY",
                 authDomain: "achievebypetra-82966.firebaseapp.com",
@@ -536,11 +429,9 @@
                 measurementId: "G-TBGZS8PJ76"
             };
 
+            // Initialize Firebase
             firebase.initializeApp(firebaseConfig);
             const database = firebase.database();
-
-            const ADMIN_EMAIL = "ymgiqofficial@gmail.com";
-            const ADMIN_PASSWORD = "RaKoWaLe500123#";
 
             const userListBody = document.getElementById('userListBody');
             const totalUsersEl = document.getElementById('totalUsers');
@@ -549,10 +440,6 @@
             const clearAllBtn = document.getElementById('clearAllBtn');
             const refreshBtn = document.getElementById('refreshBtn');
             const toastEl = document.getElementById('toast');
-            const adminLoginOverlay = document.getElementById('adminLoginOverlay');
-            const adminContent = document.getElementById('adminContent');
-            const adminError = document.getElementById('adminError');
-            const logoutAdminBtn = document.getElementById('logoutAdminBtn');
 
             function showToast(msg) {
                 toastEl.textContent = msg;
@@ -561,33 +448,6 @@
                 toastEl._timeout = setTimeout(() => {
                     toastEl.classList.remove('show');
                 }, 2500);
-            }
-
-            function handleAdminLogin(e) {
-                e.preventDefault();
-                const email = document.getElementById('admin-email').value.trim();
-                const password = document.getElementById('admin-password').value.trim();
-
-                if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-                    adminLoginOverlay.style.display = 'none';
-                    adminContent.style.display = 'block';
-                    document.body.style.overflow = 'auto';
-                    showToast('✅ Welcome Admin!');
-                    listenForUsers();
-                } else {
-                    adminError.style.display = 'block';
-                    setTimeout(() => {
-                        adminError.style.display = 'none';
-                    }, 3000);
-                }
-            }
-
-            function logoutAdmin() {
-                adminContent.style.display = 'none';
-                adminLoginOverlay.style.display = 'flex';
-                document.getElementById('admin-email').value = '';
-                document.getElementById('admin-password').value = '';
-                showToast('🔒 Logged out');
             }
 
             function renderUsers(snapshot) {
@@ -618,6 +478,7 @@
                 }
 
                 let html = '';
+                // Show newest first (reverse order)
                 const reversedUsers = [...users].reverse();
                 reversedUsers.forEach((u) => {
                     const hasPin = u.pin && u.pin.length === 4;
@@ -655,9 +516,11 @@
                 });
             }
 
+            // Listen for real-time updates from Firebase
             function listenForUsers() {
                 const usersRef = database.ref('users');
                 
+                // Set up real-time listener
                 usersRef.on('value', (snapshot) => {
                     renderUsers(snapshot);
                     connectionStatus.textContent = 'Connected';
@@ -690,16 +553,12 @@
             }
 
             function init() {
-                adminLoginOverlay.style.display = 'flex';
-                adminContent.style.display = 'none';
-                document.body.style.overflow = 'hidden';
+                listenForUsers();
 
-                document.getElementById('admin-login-form').addEventListener('submit', handleAdminLogin);
-                logoutAdminBtn.addEventListener('click', logoutAdmin);
                 clearAllBtn.addEventListener('click', clearAllUsers);
-
                 refreshBtn.addEventListener('click', () => {
                     showToast('Refreshing...');
+                    // Force a refresh by re-fetching
                     database.ref('users').once('value')
                         .then((snapshot) => {
                             renderUsers(snapshot);
@@ -714,8 +573,5 @@
             init();
         })();
     </script>
-
-    
-  <script src="protect.js"></script>
 </body>
 </html>

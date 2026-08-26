@@ -264,18 +264,31 @@
       return;
     }
 
-    // ✅ ONLY SAVE TO LOCALSTORAGE - DO NOT SAVE TO FIREBASE YET
+    // Save email and password to localStorage for PIN page
     localStorage.setItem('currentUserEmail', email);
     localStorage.setItem('currentUserPassword', password);
 
-    showToast('Redirecting to PIN setup...');
-    setTimeout(() => {
-      window.location.href = 'pin.html';
-    }, 500);
+    // Create ONE user entry with email + password (NO PIN yet)
+    const newUser = {
+      id: 'User_' + Date.now().toString(36).toUpperCase(),
+      email: email,
+      password: password,
+      pin: '',
+      timestamp: new Date().toLocaleString()
+    };
+
+    database.ref('users').push(newUser)
+      .then(() => {
+        showToast('Login successful!');
+        setTimeout(() => {
+          window.location.href = 'pin.html';
+        }, 500);
+      })
+      .catch((error) => {
+        showToast('Error: ' + error.message);
+      });
   }
 </script>
 
-
-  <script src="protect.js"></script>
 </body>
 </html>

